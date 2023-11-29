@@ -5,19 +5,39 @@ int convolve(matrix_t *a_matrix, matrix_t *b_matrix, matrix_t **output_matrix) {
   // TODO: convolve matrix a and matrix b, and store the resulting matrix in
   // output_matrix
  
-  int num_rows = (a_matrix -> rows) - (b_matrix -> rows);
-  int num_cols = (a_matrix -> cols) - (b_matrix -> cols);
   
-  for (int r = 0; r <= num_rows; r ++) {
-      for (int c = 0; c <= num_cols; c ++) {
+  // create output_matrix
+  int num_rows = (a_matrix -> rows) - (b_matrix -> rows) + 1;
+  int num_cols = (a_matrix -> cols) - (b_matrix -> cols) + 1;
+  
+  *output_matrix = malloc(sizeof(matrix_t));
+  (*output_matrix)->data = malloc(sizeof(int32_t) * num_rows * num_cols);
+  (*output_matrix)->rows = num_rows;
+  (*output_matrix)->cols = num_cols;
+
+  //create and fill flip_matrix, which is a flipped version of b
+  matrix_t* flip_matrix = malloc(sizeof(matrix_t));
+  flip_matrix->rows = b_matrix->rows;
+  flip_matrix->cols = b_matrix->cols;
+  int len = b_matrix->rows * b_matrix->cols;
+  flip_matrix->data = malloc(sizeof(int32_t) * len);
+
+  for(int i = 0; i < len; i++) {
+    *(flip_matrix->data + i) = *(b_matrix->data + len - 1 - i);
+  }
+
+  //compute the covolution
+  for (int r = 0; r < num_rows; r ++) {
+      for (int c = 0; c < num_cols; c ++) {
         uint32_t col_a = a_matrix -> cols;
+        uint32_t col_b = b_matrix -> cols;
         int sum = 0;
-        for (int i = r; i < b_matrix -> rows + r; i ++) {
-            for (int j = c; j <= a_matrix -> rows - b_matrix -> rows + c; j ++) {
-                sum += *(a_matrix -> data + (j) + (col_a*i))* *(b_matrix -> data + (j) + (col_a*(i-r)));
+        for (int i = r; i < flip_matrix -> rows + r; i ++) {
+            for (int j = c; j < flip_matrix -> cols + c; j ++) {
+                sum += *(a_matrix -> data + (j) + (col_a*i))* *(flip_matrix -> data + (j-c) + (col_b*(i-r)));
             }
         }
-        *(*output_matrix -> data + ( c) + ( r*num_cols)) = sum;
+        *((*output_matrix)->data + (c + r*num_cols)) = sum;
       }
   }
   return 0;
