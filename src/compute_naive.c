@@ -4,8 +4,23 @@
 int convolve(matrix_t *a_matrix, matrix_t *b_matrix, matrix_t **output_matrix) {
   // TODO: convolve matrix a and matrix b, and store the resulting matrix in
   // output_matrix
-
-  return -1;
+ 
+  int num_rows = (a_matrix -> rows) - (b_matrix -> rows);
+  int num_cols = (a_matrix -> cols) - (b_matrix -> cols);
+  
+  for (int r = 0; r <= num_rows; r ++) {
+      for (int c = 0; c <= num_cols; c ++) {
+        uint32_t col_a = a_matrix -> cols;
+        int sum = 0;
+        for (int i = r; i < b_matrix -> rows + r; i ++) {
+            for (int j = c; j <= a_matrix -> rows - b_matrix -> rows + c; j ++) {
+                sum += *(a_matrix -> data + (j) + (col_a*i))* *(b_matrix -> data + (j) + (col_a*(i-r)));
+            }
+        }
+        *(*output_matrix -> data + ( c) + ( r*num_cols)) = sum;
+      }
+  }
+  return 0;
 }
 
 // Executes a task
