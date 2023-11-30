@@ -32,11 +32,10 @@ int convolve(matrix_t *a_matrix, matrix_t *b_matrix, matrix_t **output_matrix) {
         uint32_t col_a = a_matrix -> cols;
         uint32_t col_b = b_matrix -> cols;
         int sum = 0;
-        for (int i = r; i < flip_matrix -> rows + r; i ++) {
-            for (int j = c; j < flip_matrix -> cols + c; j ++) {
-                sum += *(a_matrix -> data + (j) + (col_a*i))* *(flip_matrix -> data + (j-c) + (col_b*(i-r)));
+        for (int i = 0; i < len; i++) {
+                int j = ((i)/(col_b) + r)*(col_a);
+                sum += *(a_matrix->data + (i%col_b) + c + j)* *(flip_matrix->data + i);
             }
-        }
         *((*output_matrix)->data + (c + r*num_cols)) = sum;
       }
   }
