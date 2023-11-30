@@ -45,6 +45,13 @@ int convolve(matrix_t *a_matrix, matrix_t *b_matrix, matrix_t **output_matrix) {
   return 0;
 }
 
+int sum_simd_unrolled(matrix_t *a_matrix, matrix_t *b_matrix, matrix_t **output_matrix){
+    
+    for (unsigned int i = 0; i < len/16*16; i += 16) {
+        __m256i vec = _mm_setzero_si128();
+    }
+}
+
 // Executes a task
 int execute_task(task_t *task) {
   matrix_t *a_matrix, *b_matrix, *output_matrix;
