@@ -31,6 +31,8 @@ int convolve(matrix_t *a_matrix, matrix_t *b_matrix, matrix_t **output_matrix) {
   //compute the covolution
   uint32_t col_a = a_matrix -> cols;
   uint32_t col_b = b_matrix -> cols;
+
+  #pragma omp parallel for collapse(2)
   for (int r = 0; r < num_rows; r ++) {
     for (int c = 0; c < num_cols; c ++) {
         int sum = 0;
