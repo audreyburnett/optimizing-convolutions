@@ -60,6 +60,7 @@ int sum_simd_unrolled(matrix_t *a_matrix, matrix_t *b_matrix, matrix_t **output_
     
 }
 
+
 // Executes a task
 int execute_task(task_t *task) {
   matrix_t *a_matrix, *b_matrix, *output_matrix;
