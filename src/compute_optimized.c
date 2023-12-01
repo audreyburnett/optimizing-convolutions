@@ -37,17 +37,21 @@ int convolve(matrix_t *a_matrix, matrix_t *b_matrix, matrix_t **output_matrix) {
     for (int c = 0; c < num_cols; c ++) {
         int sum = 0;
         for (int i = r; i < (flip_matrix->rows + r); i++) {
-            for (int j = c; j < (flip_matrix->cols)/8 * 8 + c; j+= 8) {
-            __m256i flip_vec = _mm256_loadu_si256( (__m256i *) (flip_matrix->data + (j-c) + (col_b*(i-r))));
-            __m256i a_vec = _mm256_loadu_si256( (__m256i *) (a_matrix->data + j + (col_a*i)));
-            __m256i mul_vec = _mm256_mullo_epi32(flip_vec, a_vec);
-            int arr[8];
+            int k = (flip_matrix->cols)/8 * 8;
+            if(k > 0) {
+                __m256i sum_vec = _mm256_set1_epi32(0);
+                for (int j = c; j < k + c; j+= 8) {
+                __m256i flip_vec = _mm256_loadu_si256( (__m256i *) (flip_matrix->data + (j-c) + (col_b*(i-r))));
+                __m256i a_vec = _mm256_loadu_si256( (__m256i *) (a_matrix->data + j + (col_a*i)));
+                __m256i mul_vec = _mm256_mullo_epi32(flip_vec, a_vec);
+                sum_vec = _mm256_add_epi32(sum_vec, mul_vec);
+                }
+                int arr[8];
             
-            _mm256_storeu_si256((__m256i *) arr, mul_vec);
-            sum += arr[0] + arr[1] + arr[2] + arr[3] + arr[4] + arr[5] + arr[6] + arr[7];
-
+                _mm256_storeu_si256((__m256i *) arr, sum_vec);
+                sum += arr[0] + arr[1] + arr[2] + arr[3] + arr[4] + arr[5] + arr[6] + arr[7];
             }
-            for(int j = (flip_matrix->cols)/8 * 8 + c; j < flip_matrix->cols + c; j++) {
+            for(int j = k + c; j < flip_matrix->cols + c; j++) {
                 sum += *(a_matrix->data + j + (col_a*i))* *(flip_matrix->data + (j-c) + (col_b*(i-r)));
             }
 
