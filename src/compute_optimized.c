@@ -50,6 +50,7 @@ int convolve(matrix_t *a_matrix, matrix_t *b_matrix, matrix_t **output_matrix) {
             for(int j = (flip_matrix->cols)/8 * 8 + c; j < flip_matrix->cols + c; j++) {
                 sum += *(a_matrix->data + j + (col_a*i))* *(flip_matrix->data + (j-c) + (col_b*(i-r)));
             }
+
         }
         *((*output_matrix)->data + (c + r*num_cols)) = sum;
       }
@@ -57,11 +58,6 @@ int convolve(matrix_t *a_matrix, matrix_t *b_matrix, matrix_t **output_matrix) {
 
   return 0;
 }
-
-int sum_simd_unrolled(matrix_t *a_matrix, matrix_t *b_matrix, matrix_t **output_matrix) {
-    
-}
-
 
 // Executes a task
 int execute_task(task_t *task) {
