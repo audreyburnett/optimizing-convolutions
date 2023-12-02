@@ -38,10 +38,10 @@ int convolve(matrix_t *a_matrix, matrix_t *b_matrix, matrix_t **output_matrix) {
     for (int c = 0; c < num_cols; c ++) {
         int sum = 0;
         for (int i = r; i < (flip_matrix->rows + r); i++) {
-            int j = ((flip_matrix->cols)/16 * 16) + c;
+            int j = ((flip_matrix->cols)/32 * 32) + c;
             if(j > c) {
                 __m256i sum_vec = _mm256_set1_epi32(0);
-                for (j = c; j < (((flip_matrix->cols)/16 * 16)) + c; j+= 16) {
+                for (j = c; j < (((flip_matrix->cols)/32 * 32)) + c; j+= 32) {
                 __m256i flip_vec = _mm256_loadu_si256( (__m256i *) (flip_matrix->data + (j-c) + (col_b*(i-r))));
                 __m256i a_vec = _mm256_loadu_si256( (__m256i *) (a_matrix->data + j + (col_a*i)));
                 __m256i mul_vec = _mm256_mullo_epi32(flip_vec, a_vec);
@@ -52,8 +52,24 @@ int convolve(matrix_t *a_matrix, matrix_t *b_matrix, matrix_t **output_matrix) {
                 mul_vec = _mm256_mullo_epi32(flip_vec, a_vec);
                 sum_vec = _mm256_add_epi32(sum_vec, mul_vec);
                 
-                
+                flip_vec = _mm256_loadu_si256( (__m256i *) (flip_matrix->data + 16 + (j-c) + (col_b*(i-r))));
+                a_vec = _mm256_loadu_si256( (__m256i *) (a_matrix->data + 16 + j + (col_a*i)));
+                mul_vec = _mm256_mullo_epi32(flip_vec, a_vec);
+                sum_vec = _mm256_add_epi32(sum_vec, mul_vec);
+
+                flip_vec = _mm256_loadu_si256( (__m256i *) (flip_matrix->data + 24 + (j-c) + (col_b*(i-r))));
+                a_vec = _mm256_loadu_si256( (__m256i *) (a_matrix->data + 24 + j + (col_a*i)));
+                mul_vec = _mm256_mullo_epi32(flip_vec, a_vec);
+                sum_vec = _mm256_add_epi32(sum_vec, mul_vec);
+
                 }
+                for (; j < (((flip_matrix->cols)/8 * 8)) + c; j+= 8) {
+                __m256i flip_vec = _mm256_loadu_si256( (__m256i *) (flip_matrix->data + (j-c) + (col_b*(i-r))));
+                __m256i a_vec = _mm256_loadu_si256( (__m256i *) (a_matrix->data + j + (col_a*i)));
+                __m256i mul_vec = _mm256_mullo_epi32(flip_vec, a_vec);
+                sum_vec = _mm256_add_epi32(sum_vec, mul_vec);
+                }
+
                 int arr[8];
             
                 _mm256_storeu_si256((__m256i *) arr, sum_vec);
