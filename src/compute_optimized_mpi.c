@@ -32,7 +32,7 @@ int convolve(matrix_t *a_matrix, matrix_t *b_matrix, matrix_t **output_matrix) {
   uint32_t col_b = b_matrix -> cols;
 
   #pragma omp parallel for collapse(2)
-  for (int r = 0; r < num_rows; r ++) {
+  for (int r = 0; r < num_rows/16*16; r += 16) {
     for (int c = 0; c < num_cols; c ++) {
         int sum = 0;
         for (int i = r; i < (flip_matrix->rows + r); i++) {
@@ -43,6 +43,21 @@ int convolve(matrix_t *a_matrix, matrix_t *b_matrix, matrix_t **output_matrix) {
                 __m256i flip_vec = _mm256_loadu_si256( (__m256i *) (flip_matrix->data + (j-c) + (col_b*(i-r))));
                 __m256i a_vec = _mm256_loadu_si256( (__m256i *) (a_matrix->data + j + (col_a*i)));
                 __m256i mul_vec = _mm256_mullo_epi32(flip_vec, a_vec);
+                sum_vec = _mm256_add_epi32(sum_vec, mul_vec);
+
+                __m256i flip_vec2 = _mm256_loadu_si256( (__m256i *) (flip_matrix->data + (j-c) + (col_b*(i-r+4))));
+                __m256i a_vec2 = _mm256_loadu_si256( (__m256i *) (a_matrix->data + j + (col_a*i)));
+                __m256i mul_vec2 = _mm256_mullo_epi32(flip_vec2, a_vec2);
+                sum_vec = _mm256_add_epi32(sum_vec, mul_vec);
+
+                __m256i flip_vec3 = _mm256_loadu_si256( (__m256i *) (flip_matrix->data + (j-c) + (col_b*(i-r+8))));
+                __m256i a_vec3 = _mm256_loadu_si256( (__m256i *) (a_matrix->data + j + (col_a*i)));
+                __m256i mul_vec3 = _mm256_mullo_epi32(flip_vec3, a_vec3);
+                sum_vec = _mm256_add_epi32(sum_vec, mul_vec);
+
+                __m256i flip_vec4 = _mm256_loadu_si256( (__m256i *) (flip_matrix->data + (j-c) + (col_b*(i-r+12))));
+                __m256i a_vec4 = _mm256_loadu_si256( (__m256i *) (a_matrix->data + j + (col_a*i)));
+                __m256i mul_vec4 = _mm256_mullo_epi32(flip_vec4, a_vec4);
                 sum_vec = _mm256_add_epi32(sum_vec, mul_vec);
                 }
                 int arr[8];
