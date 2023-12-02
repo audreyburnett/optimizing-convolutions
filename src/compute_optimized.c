@@ -24,6 +24,7 @@ int convolve(matrix_t *a_matrix, matrix_t *b_matrix, matrix_t **output_matrix) {
   int len = b_matrix->rows * b_matrix->cols;
   flip_matrix->data = malloc(sizeof(int32_t) * len);
 
+  #pragma omp parallel for
   for(int i = 0; i < len; i++) {
     *(flip_matrix->data + i) = *(b_matrix->data + len - 1 - i);
   }
