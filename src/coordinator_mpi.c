@@ -14,7 +14,15 @@ int main(int argc, char *argv[]) {
   }
 
   // TODO: implement Open MPI coordinator
-  int numTasks = atoi(argv[1]);
+  
+  int numTasks;
+  task_t **tasks;
+  if (read_tasks(argv[1], &numTasks, &tasks)) {
+    printf("Error reading task list from %s\n", argv[1]);
+    return -1;
+  }
+  
+  // int numTasks = atoi(argv[1]);
   MPI_Init(&argc, &argv);
   int procID, totalProcs;
   MPI_Comm_size(MPI_COMM_WORLD, &totalProcs);
@@ -45,7 +53,7 @@ int main(int argc, char *argv[]) {
         if (message == TERMINATE) {
           break;
         }
-        execute_task(message);
+        execute_task(tasks[message]);
       }
   }
   MPI_Finalize();
